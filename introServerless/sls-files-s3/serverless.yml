@@ -1,0 +1,37 @@
+service: curso-sls-files-s3
+
+frameworkVersion: '2'
+
+custom:
+  bucket: nombrebucket-sls-dev
+  defaul_stage: dev
+  apigwBinary:
+    types:
+      - '*/*' #accept png, jpg, mime.
+
+plugins:
+  - serverless-apigw-binary
+
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, self:custom.defaul_stage}
+  vpc:
+    securityGroupIds:
+      - sg1
+      - sg2
+    subnetIds:
+      - sn1
+      - sn2
+
+
+functions:
+  uploadS3File:
+    handler: handler.app
+    environment:
+      bucket: ${self:custom.bucket}-${self:provider.stage}
+    events:
+      - http:
+          path: /upload
+          method: post
